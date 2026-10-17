@@ -1,0 +1,24 @@
+name: searxng-mcp
+
+services:
+  searxng:
+    image: searxng/searxng:latest
+    volumes:
+      - "${SEARXNG_VOL_CONFIG:-searxng-config}:/etc/searxng/"
+      - "${SEARXNG_VOL_DATA:-searxng-data}:/var/cache/searxng/"
+    restart: unless-stopped
+
+  searxng-mcp:
+    image: ghcr.io/aicrafted/searxng-mcp:latest
+    restart: unless-stopped
+    depends_on:
+      - searxng
+    environment:
+      SEARXNG_URL: "${SEARXNG_URL:-http://searxng:8080}"
+      MCP_HOST: "${MCP_HOST:-0.0.0.0}"
+      MCP_PORT: "${MCP_PORT:-8766}"
+      MCP_TRANSPORT: "${MCP_TRANSPORT:-http}"
+      MCP_ALLOWED_HOSTS: "${MCP_ALLOWED_HOSTS:-localhost:*,127.0.0.1:*}"
+      MCP_ALLOWED_ORIGINS: "${MCP_ALLOWED_ORIGINS:-http://localhost:*,http://127.0.0.1:*}"
+    ports:
+      - "${MCP_PORT:-8766}:${MCP_PORT:-8766}"
